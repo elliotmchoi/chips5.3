@@ -1,7 +1,8 @@
 class MoviesController < ApplicationController
 
   def all_ratings
-    Movie.ratings
+    Movie.all_ratings
+    byebug
   end
   
   def show
