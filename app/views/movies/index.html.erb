@@ -22,7 +22,7 @@
       <% else %>
         <th>
       <% end %>
-        <%= link_to "Movie Title", sort: 'Title', id: 'title_header' %>
+        <%= link_to "Movie Title", sort: 'Title', ratings: @ratings.to_h, id: 'title_header' %>
       </th>
       <th>Rating</th>
             <% if @sort == "Date" %>
@@ -30,7 +30,7 @@
       <% else %>
         <th>
       <% end %>
-        <%= link_to "Release Date", sort: 'Date', id: 'release_date_header' %>
+        <%= link_to "Release Date", sort: 'Date', ratings: @ratings.to_h, id: 'release_date_header' %>
       </th>
       <th>More Info</th>
     </tr>
