@@ -8,13 +8,48 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    @sort = params[:sort]
-    if params[:ratings] == nil
-      @ratings_to_show = []
+    
+    if params[:ratings] == nil and params[:sort] == nil and session[:ratings] == nil and params[:sort] == nil
       d_movies = Movie.all
+      @ratings_to_show = []
+      @sort = nil
     else
-      @ratings_to_show = params[:ratings].keys
-      d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      # undo sort.
+      if params[:ratings] == nil and ((params[:sort] == nil and session[:sort] != nil) or (params[:sort] == session[:sort]))
+        @ratings_to_show = []
+        @sort = nil
+        d_movies = Movie.all
+      # click only sort.
+      elsif params[:ratings] == nil and params[:sort] != nil and session[:ratings].empty?
+        @ratings_to_show = []
+        @sort = params[:sort]
+        d_movies = Movie.all
+      # click refresh then sort.
+      elsif params[:ratings] != nil and params[:sort] != nil
+        @ratings_to_show = params[:ratings].keys
+        @sort = params[:sort]
+        d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      # click different sort.
+      elsif params[:ratings] == nil and session[:ratings] != nil and params[:sort] != nil
+        @ratings_to_show = session[:ratings]
+        @sort = params[:sort]
+        d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      # click refresh after sort
+      elsif params[:ratings] != nil and params[:sort] == nil and session[:sort] != nil
+        @ratings_to_show = params[:ratings].keys
+        @sort = session[:sort]
+        d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      # filter then sort
+      elsif params[:ratings] == nil and params[:sort] != nil and session[:ratings] != nil
+        @ratings_to_show = session[:ratings]
+        @sort = params[:sort]
+        d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      # click only filter
+      else
+        @ratings_to_show = params[:ratings].keys
+        @sort = nil
+        d_movies = Movie.where("rating IN (?)", @ratings_to_show)
+      end
     end
     
     if @sort == 'Title' or @sort == 'Date'
@@ -24,7 +59,10 @@ class MoviesController < ApplicationController
         d_movies = d_movies.order("release_date ASC")
       end
     end
+
     @movies = d_movies
+    session[:sort] = @sort
+    session[:ratings] = @ratings_to_show
   end
 
   def new
